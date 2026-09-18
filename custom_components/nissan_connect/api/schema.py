@@ -115,8 +115,8 @@ class GeoPoint(BaseSchema):
 	latlongUOM: str
 
 class CockpitStatus(BaseSchema):
-	fuelAutonomy: Counter
-	totalMileage: Counter
+	fuelAutonomy: Counter | None = None  # absent on BEVs
+	totalMileage: Counter | None = None
 
 class PressureStatus(BaseSchema):
 	flPressure: Counter
@@ -129,16 +129,18 @@ class PressureStatus(BaseSchema):
 	rrStatus: bool
 
 class MalfunctionIndicatorLampsStatus(BaseSchema):
-	absWarning: bool
-	airbagWarning: bool
-	brakeFluidWarning: bool
-	oilPressureWarning: bool
-	tyrePressureWarning: bool
-	oilPressureSwitch: bool
-	lampRequest: bool
+	# The API omits a lamp key entirely when it is not lit; absent means "off".
+	absWarning: bool = False
+	airbagWarning: bool = False
+	brakeFluidWarning: bool = False
+	emergencyBrakingWarning: bool = False
+	oilPressureWarning: bool = False
+	tyrePressureWarning: bool = False
+	oilPressureSwitch: bool = False
+	lampRequest: bool = False
 
 class HealthStatus(BaseSchema):
-	malfunctionIndicatorLamps: MalfunctionIndicatorLampsStatus
+	malfunctionIndicatorLamps: MalfunctionIndicatorLampsStatus | None = None
 
 class LockState(SymmetricEnum):
 	LOCKED = 'locked'
@@ -159,10 +161,10 @@ class LockStatus(BaseSchema):
 
 class VehicleStatus(BaseSchema):
 	lastUpdateTime: datetime
-	cockpit: CockpitStatus
-	pressure: PressureStatus
-	healthStatus: HealthStatus
-	lockStatus: LockStatus
+	cockpit: CockpitStatus | None = None
+	pressure: PressureStatus | None = None  # omitted by some vehicles (e.g. CA Rogue)
+	healthStatus: HealthStatus | None = None
+	lockStatus: LockStatus | None = None
 
 class LocationStatus(BaseSchema):
 	status: str | None = None
